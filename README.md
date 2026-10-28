@@ -1,15 +1,15 @@
 <div align="center">
-    <h1>Slauncher</h1>
+    <h1>devLauncher</h1>
     <p>A minimal, privacy-first Android launcher.</p>
     <br />
     <img src="fastlane/metadata/android/en-US/images/icon.png" width="192"/>
     
     
-[<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png" alt="Get it on F-Droid" height="80">](https://f-droid.org/en/packages/com.s4nj1th.slauncher)
+[<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png" alt="Get it on F-Droid" height="80">](https://f-droid.org/en/packages/com.dev.launcher)
 
 </div>
 
-Slauncher is a lightweight Android launcher focused on simplicity, privacy, and customization. It is designed to stay out of your way and give you the essentials without ads or data collection.
+devLauncher is a lightweight Android launcher focused on simplicity, privacy, and customization. It is designed to stay out of your way and give you the essentials without ads or data collection.
 
 ## Screenshots
 

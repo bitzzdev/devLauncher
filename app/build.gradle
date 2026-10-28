@@ -14,7 +14,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.s4nj1th.slauncher"
+        applicationId "com.dev.launcher"
         minSdkVersion 24
         targetSdkVersion 35
         versionCode 105
@@ -47,7 +47,7 @@ android {
         includeInBundle = false
     }
 
-    namespace 'com.s4nj1th.slauncher'
+    namespace 'com.dev.launcher'
 }
 
 dependencies {

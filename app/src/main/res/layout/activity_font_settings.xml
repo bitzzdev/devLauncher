@@ -3,20 +3,46 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:padding="20dp">
+
+    <TextView
+        android:id="@+id/tv_font_status"
+        style="@style/TextSmall"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:text="@string/import_font_tip" />
 
     <Button
         android:id="@+id/btn_pick_font"
+        style="@style/Widget.MaterialComponents.Button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/choose_font" />
 
-    <TextView
-        android:id="@+id/tv_font_preview"
+    <Button
+        android:id="@+id/btn_reset_font"
+        style="@style/Widget.MaterialComponents.Button.TextButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:text="The quick brown fox jumps over the lazy dog"
-        android:textSize="18sp" />
+        android:layout_marginTop="8dp"
+        android:text="Reset to default"
+        android:visibility="gone" />
+
+    <TextView
+        style="@style/TextSmallBold"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="28dp"
+        android:text="Preview" />
+
+    <TextView
+        android:id="@+id/tv_font_preview"
+        style="@style/TextLarge"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:text="@string/font_preview_text"
+        android:textSize="20sp" />
 
 </LinearLayout>

@@ -208,24 +208,40 @@
                     android:clickable="true"
                     android:foreground="?attr/selectableItemBackground">
 
-                    <TextView
-                        style="@style/TextSmall"
+                    <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
-                        android:paddingVertical="8dp"
-                        android:text="Media controls on home"
-                        android:textColor="?attr/primaryColor" />
+                        android:orientation="vertical">
+
+                        <TextView
+                            style="@style/TextSmall"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:paddingTop="8dp"
+                            android:text="@string/media_widget_title"
+                            android:textColor="?attr/primaryColor" />
+
+                        <TextView
+                            style="@style/TextSmall"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:paddingBottom="8dp"
+                            android:textSize="11sp"
+                            android:alpha="0.7"
+                            android:text="@string/media_widget_summary" />
+
+                    </LinearLayout>
 
                     <TextView
                         android:id="@+id/mediaWidgetEnabledText"
                         style="@style/TextSmallBold"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="end|bottom"
+                        android:layout_gravity="end|center_vertical"
                         android:layout_marginEnd="8dp"
                         android:padding="8dp"
-                        android:text="On" />
+                        android:text="@string/on" />
 
                 </FrameLayout>
 
@@ -373,6 +389,36 @@
                             android:text="@string/date_only" />
 
                     </LinearLayout>
+
+                </FrameLayout>
+
+                <!-- Reset Clock Position & Size -->
+                <FrameLayout
+                    android:id="@+id/resetClockLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:clickable="true"
+                    android:foreground="?attr/selectableItemBackground">
+
+                    <TextView
+                        style="@style/TextSmall"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:paddingVertical="8dp"
+                        android:text="@string/reset_clock_layout"
+                        android:textColor="?attr/primaryColor" />
+
+                    <TextView
+                        android:id="@+id/resetClockAction"
+                        style="@style/TextSmallBold"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="end|bottom"
+                        android:layout_marginEnd="4dp"
+                        android:padding="8dp"
+                        android:text="Reset" />
 
                 </FrameLayout>
 
@@ -559,6 +605,33 @@
                         android:layout_marginEnd="4dp"
                         android:padding="8dp"
                         android:text="@string/on" />
+                </FrameLayout>
+
+                <FrameLayout
+                    android:id="@+id/autoOpenAppLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:animateLayoutChanges="true">
+
+                    <TextView
+                        style="@style/TextSmall"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:paddingVertical="8dp"
+                        android:text="@string/auto_open_app_title"
+                        android:textColor="?attr/primaryColor" />
+
+                    <TextView
+                        android:id="@+id/autoOpenApp"
+                        style="@style/TextSmallBold"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="end|bottom"
+                        android:layout_marginEnd="4dp"
+                        android:padding="8dp"
+                        android:text="@string/off" />
                 </FrameLayout>
 
                 <FrameLayout
@@ -758,7 +831,47 @@
                             android:paddingVertical="6dp"
                             android:text="@string/crimson_pro" />
 
+                        <TextView
+                            android:id="@+id/fontCustom"
+                            style="@style/TextSmallBold"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="24dp"
+                            android:gravity="center"
+                            android:paddingVertical="6dp"
+                            android:text="@string/custom_font" />
+
                     </LinearLayout>
+
+                </FrameLayout>
+
+                <!-- Import Custom Font Row -->
+                <FrameLayout
+                    android:id="@+id/importCustomFontRow"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:clickable="true"
+                    android:foreground="?attr/selectableItemBackground">
+
+                    <TextView
+                        style="@style/TextSmall"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:paddingVertical="8dp"
+                        android:text="@string/import_custom_font"
+                        android:textColor="?attr/primaryColor" />
+
+                    <TextView
+                        android:id="@+id/importCustomFontStatus"
+                        style="@style/TextSmallBold"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="end|bottom"
+                        android:layout_marginEnd="4dp"
+                        android:padding="8dp"
+                        android:text="@string/choose_font" />
 
                 </FrameLayout>
 

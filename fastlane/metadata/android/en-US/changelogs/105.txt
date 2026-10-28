@@ -1,4 +1,4 @@
-Refactored application package ID to com.s4nj1th.slauncher.
+Refactored application package ID to com.dev.launcher.
 Fixed media app launching when tapping media widget.
 Added live track title and artist - album metadata display.
 Fixed media controls for active playback sessions.

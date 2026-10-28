@@ -6,5 +6,5 @@
     android:canRetrieveWindowContent="true"
     android:description="@string/accessibility_service_description"
     android:notificationTimeout="10"
-    android:packageNames="com.s4nj1th.slauncher.debug, com.s4nj1th.slauncher"
+    android:packageNames="com.dev.launcher.debug, com.dev.launcher"
     android:settingsActivity="com.example.android.accessibility.ServiceSettingsActivity" />

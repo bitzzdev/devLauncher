@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/mainFragment"
-        android:name="com.s4nj1th.slauncher.ui.HomeFragment"
+        android:name="com.dev.launcher.ui.HomeFragment"
         android:label="main_fragment"
         tools:layout="@layout/fragment_home">
         <action
@@ -28,7 +28,7 @@
 
     <fragment
         android:id="@+id/appListFragment"
-        android:name="com.s4nj1th.slauncher.ui.AppDrawerFragment"
+        android:name="com.dev.launcher.ui.AppDrawerFragment"
         android:label="app_list_fragment"
         tools:layout="@layout/fragment_app_drawer">
         <action
@@ -43,7 +43,7 @@
     </fragment>
     <fragment
         android:id="@+id/settingsFragment"
-        android:name="com.s4nj1th.slauncher.ui.SettingsFragment"
+        android:name="com.dev.launcher.ui.SettingsFragment"
         android:label="SettingsFragment"
         android:layout="@layout/fragment_settings">
         <action
