@@ -248,7 +248,11 @@ class HomeFragment : Fragment(), View.OnClickListener, View.OnLongClickListener 
 
         FontManager.load(requireContext())?.let { tf ->
             binding.clock.typeface = tf
+            try { binding.clock.paint.typeface = tf } catch (_: Exception) {}
+            binding.clock.postInvalidate()
             binding.date.typeface = tf
+            try { binding.date.paint.typeface = tf } catch (_: Exception) {}
+            binding.date.postInvalidate()
         }
 
         val dateFormat = SimpleDateFormat("EEE, d MMM", Locale.getDefault())
@@ -343,12 +347,12 @@ class HomeFragment : Fragment(), View.OnClickListener, View.OnLongClickListener 
         var dX = 0f
         var dY = 0f
         val gridSize = 20.dpToPx().toFloat()
-        binding.dateTimeLayout.setOnTouchListener { view, event ->
+        val dragTouchListener = View.OnTouchListener { _, event ->
             scaleDetector.onTouchEvent(event)
             when (event.actionMasked) {
                 MotionEvent.ACTION_DOWN -> {
-                    dX = view.translationX - event.rawX
-                    dY = view.translationY - event.rawY
+                    dX = binding.dateTimeLayout.translationX - event.rawX
+                    dY = binding.dateTimeLayout.translationY - event.rawY
                     true
                 }
                 MotionEvent.ACTION_MOVE -> {
@@ -362,26 +366,35 @@ class HomeFragment : Fragment(), View.OnClickListener, View.OnLongClickListener 
                             currentClockX = rawTargetX
                             currentClockY = rawTargetY
                         }
-                        view.translationX = currentClockX
-                        view.translationY = currentClockY
+                        binding.dateTimeLayout.translationX = currentClockX
+                        binding.dateTimeLayout.translationY = currentClockY
                     }
                     true
                 }
                 MotionEvent.ACTION_UP -> {
                     if (isSnapToGrid) {
-                        currentClockX = (Math.round(view.translationX / gridSize) * gridSize)
-                        currentClockY = (Math.round(view.translationY / gridSize) * gridSize)
-                        view.translationX = currentClockX
-                        view.translationY = currentClockY
+                        currentClockX = (Math.round(binding.dateTimeLayout.translationX / gridSize) * gridSize)
+                        currentClockY = (Math.round(binding.dateTimeLayout.translationY / gridSize) * gridSize)
+                        binding.dateTimeLayout.translationX = currentClockX
+                        binding.dateTimeLayout.translationY = currentClockY
                     } else {
-                        currentClockX = view.translationX
-                        currentClockY = view.translationY
+                        currentClockX = binding.dateTimeLayout.translationX
+                        currentClockY = binding.dateTimeLayout.translationY
                     }
                     true
                 }
                 else -> true
             }
         }
+
+        binding.dateTimeLayout.setOnTouchListener(dragTouchListener)
+        binding.clock.setOnTouchListener(dragTouchListener)
+        binding.date.setOnTouchListener(dragTouchListener)
+
+        binding.clock.isClickable = false
+        binding.clock.isLongClickable = false
+        binding.date.isClickable = false
+        binding.date.isLongClickable = false
 
         binding.btnClockSnap.setOnClickListener {
             isSnapToGrid = !isSnapToGrid
@@ -439,6 +452,13 @@ class HomeFragment : Fragment(), View.OnClickListener, View.OnLongClickListener 
         binding.clockEditBar.visibility = View.GONE
         binding.dateTimeLayout.background = null
         binding.dateTimeLayout.setOnTouchListener(null)
+        binding.clock.setOnTouchListener(null)
+        binding.date.setOnTouchListener(null)
+
+        binding.clock.isClickable = true
+        binding.clock.isLongClickable = true
+        binding.date.isClickable = true
+        binding.date.isLongClickable = true
 
         if (save) {
             prefs.clockOffsetX = currentClockX
@@ -531,6 +551,8 @@ class HomeFragment : Fragment(), View.OnClickListener, View.OnLongClickListener 
             textView.text = appName
             if (customTf != null) {
                 textView.typeface = customTf
+                try { textView.paint.typeface = customTf } catch (_: Exception) {}
+                textView.postInvalidate()
             } else {
                 textView.setTypeface(textView.typeface, Typeface.BOLD)
             }
@@ -539,6 +561,8 @@ class HomeFragment : Fragment(), View.OnClickListener, View.OnLongClickListener 
         textView.text = ""
         if (customTf != null) {
             textView.typeface = customTf
+            try { textView.paint.typeface = customTf } catch (_: Exception) {}
+            textView.postInvalidate()
         } else {
             textView.setTypeface(textView.typeface, Typeface.NORMAL)
         }

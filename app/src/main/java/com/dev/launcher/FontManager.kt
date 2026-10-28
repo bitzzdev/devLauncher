@@ -70,6 +70,10 @@ object FontManager {
     fun applyRecursively(v: View, tf: Typeface) {
         if (v is TextView) {
             v.typeface = tf
+            try {
+                v.paint.typeface = tf
+            } catch (_: Exception) {}
+            v.postInvalidate()
         }
         if (v is ViewGroup) {
             v.setOnHierarchyChangeListener(object : ViewGroup.OnHierarchyChangeListener {
@@ -98,58 +102,44 @@ object FontManager {
                 }
             } catch (_: Exception) {}
 
-            val fontsDir = File(context.filesDir, "fonts")
-            if (!fontsDir.exists()) fontsDir.mkdirs()
-
+            val fontsDir = File(context.filesDir, "fonts").apply { if (!exists()) mkdirs() }
             val ext = when {
                 fileName.endsWith(".otf", ignoreCase = true) -> ".otf"
                 fileName.endsWith(".ttc", ignoreCase = true) -> ".ttc"
                 else -> ".ttf"
             }
-            val tempFile = File(fontsDir, "temp_font$ext")
-            val finalFile = File(fontsDir, "custom_font$ext")
+            val targetFile = File(fontsDir, "custom_font$ext")
 
             inputStream = context.contentResolver.openInputStream(uri) ?: return false
-            FileOutputStream(tempFile).use { out ->
+            FileOutputStream(targetFile).use { out ->
                 inputStream?.copyTo(out)
             }
 
-            if (tempFile.length() < 100) {
-                tempFile.delete()
+            if (targetFile.length() < 100) {
+                targetFile.delete()
                 return false
             }
 
             // Test if Android can parse this font file
-            val testTf = try {
-                Typeface.createFromFile(tempFile)
+            val tf = try {
+                Typeface.createFromFile(targetFile)
             } catch (e: Exception) {
                 null
             }
 
-            if (testTf == null) {
-                tempFile.delete()
+            if (tf == null) {
+                targetFile.delete()
                 return false
             }
 
-            // Remove previous font files
-            fontsDir.listFiles()?.forEach { file ->
-                if (file.name.startsWith("custom_font") || file.name.startsWith("temp_font")) {
-                    if (file.absolutePath != tempFile.absolutePath) {
-                        file.delete()
-                    }
-                }
-            }
-
-            if (!tempFile.renameTo(finalFile)) {
-                tempFile.copyTo(finalFile, overwrite = true)
-                tempFile.delete()
-            }
+            // Successfully validated and cached
+            cachedTypeface = tf
+            cachedPath = targetFile.absolutePath
 
             val prefs = Prefs(context)
-            prefs.customFontPath = finalFile.absolutePath
+            prefs.customFontPath = targetFile.absolutePath
             prefs.customFontName = fileName
             prefs.fontSelection = Constants.Font.CUSTOM
-            clear()
             return true
         } catch (e: Exception) {
             e.printStackTrace()

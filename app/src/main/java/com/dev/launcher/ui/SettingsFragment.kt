@@ -64,7 +64,7 @@ class SettingsFragment : Fragment(), View.OnClickListener, View.OnLongClickListe
     private var _binding: FragmentSettingsBinding? = null
     private val binding get() = _binding!!
 
-    private val pickFontLauncher = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri: Uri? ->
+    private val pickFontLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         uri?.let { applyCustomFont(it) }
     }
 
@@ -171,7 +171,7 @@ class SettingsFragment : Fragment(), View.OnClickListener, View.OnLongClickListe
                 if (FontManager.hasCustomFontFile(requireContext())) {
                     updateFont(Constants.Font.CUSTOM)
                 } else {
-                    pickFontLauncher.launch(arrayOf("*/*"))
+                    pickFontLauncher.launch("*/*")
                 }
             }
             R.id.textSizeValue -> binding.textSizesLayout.visibility = View.VISIBLE
@@ -281,7 +281,7 @@ class SettingsFragment : Fragment(), View.OnClickListener, View.OnLongClickListe
         binding.fontCrimsonPro?.setOnClickListener(this)
         binding.fontCustom?.setOnClickListener(this)
         binding.importCustomFontRow?.setOnClickListener {
-            pickFontLauncher.launch(arrayOf("*/*"))
+            pickFontLauncher.launch("*/*")
         }
         binding.importCustomFontRow?.setOnLongClickListener {
             startActivity(Intent(requireContext(), FontSettingsActivity::class.java))
@@ -675,11 +675,7 @@ class SettingsFragment : Fragment(), View.OnClickListener, View.OnLongClickListe
 
     private fun updateFont(fontId: Int) {
         if (fontId == Constants.Font.CUSTOM && !FontManager.hasCustomFontFile(requireContext())) {
-            pickFontLauncher.launch(arrayOf("*/*"))
-            binding.fontSelectLayout?.visibility = View.GONE
-            return
-        }
-        if (prefs.fontSelection == fontId) {
+            pickFontLauncher.launch("*/*")
             binding.fontSelectLayout?.visibility = View.GONE
             return
         }

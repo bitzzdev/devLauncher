@@ -175,6 +175,7 @@ class AppDrawerAdapter(
                 FontManager.applyToView(binding.root, binding.root.context)
                 FontManager.load(binding.root.context)?.let { tf ->
                     appTitle.typeface = tf
+                    try { appTitle.paint.typeface = tf } catch (_: Exception) {}
                     appDelete.typeface = tf
                     appHide.typeface = tf
                     appRename.typeface = tf

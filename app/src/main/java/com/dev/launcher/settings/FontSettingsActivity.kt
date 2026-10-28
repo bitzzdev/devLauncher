@@ -21,7 +21,7 @@ class FontSettingsActivity : AppCompatActivity() {
     private lateinit var tvStatus: TextView
     private lateinit var tvPreview: TextView
 
-    private val pickFont = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri: Uri? ->
+    private val pickFont = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         uri?.let { applyFontFromUri(it) }
     }
 
@@ -37,7 +37,7 @@ class FontSettingsActivity : AppCompatActivity() {
         tvPreview = findViewById(R.id.tv_font_preview)
 
         btnPick.setOnClickListener {
-            pickFont.launch(arrayOf("*/*"))
+            pickFont.launch("*/*")
         }
 
         btnReset.setOnClickListener {
