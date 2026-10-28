@@ -173,6 +173,14 @@ class AppDrawerAdapter(
         ) =
             with(binding) {
                 FontManager.applyToView(binding.root, binding.root.context)
+                FontManager.load(binding.root.context)?.let { tf ->
+                    appTitle.typeface = tf
+                    appDelete.typeface = tf
+                    appHide.typeface = tf
+                    appRename.typeface = tf
+                    etAppRename.typeface = tf
+                    tvSaveRename.typeface = tf
+                }
                 appHideLayout.visibility = View.GONE
                 renameLayout.visibility = View.GONE
                 appTitle.visibility = View.VISIBLE

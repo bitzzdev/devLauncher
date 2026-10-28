@@ -153,4 +153,8 @@ Thank you!</string>
     <string name="new_year_wish_1">It doesn\'t matter how January went. You still have the rest of the year to do better than ever.</string>
     <string name="cheers">Cheers!</string>
     <string name="notification_bar">Notification bar</string>
+    <string name="snap_on">对齐网格</string>
+    <string name="snap_off">自由移动</string>
+    <string name="snap_to_grid">对齐网格</string>
+    <string name="freeform">自由移动</string>
 </resources>

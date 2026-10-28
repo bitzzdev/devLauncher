@@ -42,6 +42,7 @@ class Prefs(context: Context) {
     private val CLOCK_OFFSET_X = "CLOCK_OFFSET_X"
     private val CLOCK_OFFSET_Y = "CLOCK_OFFSET_Y"
     private val CLOCK_SCALE = "CLOCK_SCALE"
+    private val CLOCK_SNAP_GRID = "CLOCK_SNAP_GRID"
     private val PRO_MESSAGE_SHOWN = "PRO_MESSAGE_SHOWN"
     private val HIDE_SET_DEFAULT_LAUNCHER = "HIDE_SET_DEFAULT_LAUNCHER"
     private val SCREEN_TIME_LAST_UPDATED = "SCREEN_TIME_LAST_UPDATED"
@@ -197,6 +198,10 @@ class Prefs(context: Context) {
     var clockScale: Float
         get() = prefs.getFloat(CLOCK_SCALE, 1.0f)
         set(value) = prefs.edit { putFloat(CLOCK_SCALE, value).apply() }
+
+    var widgetSnapGrid: Boolean
+        get() = prefs.getBoolean(CLOCK_SNAP_GRID, false)
+        set(value) = prefs.edit { putBoolean(CLOCK_SNAP_GRID, value).apply() }
 
     var proMessageShown: Boolean
         get() = prefs.getBoolean(PRO_MESSAGE_SHOWN, false)

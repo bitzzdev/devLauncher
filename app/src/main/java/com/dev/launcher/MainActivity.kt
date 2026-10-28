@@ -50,6 +50,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var viewModel: MainViewModel
     private lateinit var binding: ActivityMainBinding
     private var timerJob: Job? = null
+    private var currentFontSelection: Int = -1
+    private var currentCustomFontPath: String = ""
 
 
 
@@ -65,6 +67,8 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         prefs = Prefs(this)
+        currentFontSelection = prefs.fontSelection
+        currentCustomFontPath = prefs.customFontPath ?: ""
         
         when (prefs.fontSelection) {
             Constants.Font.INTER -> setTheme(R.style.AppTheme_FontInter)
@@ -118,6 +122,17 @@ class MainActivity : AppCompatActivity() {
     override fun onStart() {
         super.onStart()
         restartLauncherOrCheckTheme()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (currentFontSelection != prefs.fontSelection || currentCustomFontPath != (prefs.customFontPath ?: "")) {
+            currentFontSelection = prefs.fontSelection
+            currentCustomFontPath = prefs.customFontPath ?: ""
+            recreate()
+            return
+        }
+        FontManager.applyToView(binding.root, this)
     }
 
     override fun onStop() {

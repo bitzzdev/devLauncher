@@ -103,6 +103,7 @@ class HomeFragment : Fragment(), View.OnClickListener, View.OnLongClickListener 
     }
 
     private var isClockEditMode = false
+    private var isSnapToGrid = false
     private var currentClockScale = 1.0f
     private var currentClockX = 0f
     private var currentClockY = 0f
@@ -229,6 +230,10 @@ class HomeFragment : Fragment(), View.OnClickListener, View.OnLongClickListener 
         val verticalGravity = if (prefs.homeBottomAlignment) Gravity.BOTTOM else Gravity.CENTER_VERTICAL
         binding.homeAppsLayout.gravity = horizontalGravity or verticalGravity
         binding.dateTimeLayout.gravity = horizontalGravity
+        (binding.dateTimeLayout.layoutParams as? FrameLayout.LayoutParams)?.let { lp ->
+            lp.gravity = horizontalGravity or Gravity.TOP
+            binding.dateTimeLayout.layoutParams = lp
+        }
         binding.homeApp1.gravity = horizontalGravity
         binding.homeApp2.gravity = horizontalGravity
         binding.homeApp3.gravity = horizontalGravity
@@ -241,6 +246,10 @@ class HomeFragment : Fragment(), View.OnClickListener, View.OnLongClickListener 
         binding.clock.isVisible = Constants.DateTime.isTimeVisible(prefs.dateTimeVisibility)
         binding.date.isVisible = Constants.DateTime.isDateVisible(prefs.dateTimeVisibility)
 
+        FontManager.load(requireContext())?.let { tf ->
+            binding.clock.typeface = tf
+            binding.date.typeface = tf
+        }
 
         val dateFormat = SimpleDateFormat("EEE, d MMM", Locale.getDefault())
         var dateText = dateFormat.format(Date())
@@ -262,12 +271,21 @@ class HomeFragment : Fragment(), View.OnClickListener, View.OnLongClickListener 
         val scale = prefs.clockScale.coerceIn(0.5f, 2.5f)
         binding.dateTimeLayout.scaleX = scale
         binding.dateTimeLayout.scaleY = scale
-        binding.dateTimeLayout.pivotX = when (prefs.homeAlignment) {
-            Gravity.END -> binding.dateTimeLayout.width.toFloat().takeIf { it > 0 } ?: 0f
-            Gravity.CENTER -> (binding.dateTimeLayout.width / 2f).takeIf { it > 0 } ?: 0f
-            else -> 0f
+        val updatePivot = {
+            if (isAdded && _binding != null) {
+                binding.dateTimeLayout.pivotX = when (prefs.homeAlignment) {
+                    Gravity.END -> binding.dateTimeLayout.width.toFloat().takeIf { it > 0 } ?: 0f
+                    Gravity.CENTER, Gravity.CENTER_HORIZONTAL -> (binding.dateTimeLayout.width / 2f).takeIf { it > 0 } ?: 0f
+                    else -> 0f
+                }
+                binding.dateTimeLayout.pivotY = 0f
+            }
         }
-        binding.dateTimeLayout.pivotY = 0f
+        if (binding.dateTimeLayout.width > 0) {
+            updatePivot()
+        } else {
+            binding.dateTimeLayout.post { updatePivot() }
+        }
     }
 
     private fun showClockOptionsDialog() {
@@ -301,12 +319,14 @@ class HomeFragment : Fragment(), View.OnClickListener, View.OnLongClickListener 
 
     private fun enterClockEditMode() {
         isClockEditMode = true
+        isSnapToGrid = prefs.widgetSnapGrid
         currentClockScale = prefs.clockScale.coerceIn(0.5f, 2.5f)
         currentClockX = prefs.clockOffsetX
         currentClockY = prefs.clockOffsetY
 
         binding.clockEditBar.visibility = View.VISIBLE
         updateClockEditDisplay()
+        updateClockSnapButton()
 
         binding.dateTimeLayout.setBackgroundResource(R.drawable.rounded_rect_shade_color)
 
@@ -322,6 +342,7 @@ class HomeFragment : Fragment(), View.OnClickListener, View.OnLongClickListener 
 
         var dX = 0f
         var dY = 0f
+        val gridSize = 20.dpToPx().toFloat()
         binding.dateTimeLayout.setOnTouchListener { view, event ->
             scaleDetector.onTouchEvent(event)
             when (event.actionMasked) {
@@ -332,19 +353,45 @@ class HomeFragment : Fragment(), View.OnClickListener, View.OnLongClickListener 
                 }
                 MotionEvent.ACTION_MOVE -> {
                     if (event.pointerCount == 1) {
-                        currentClockX = event.rawX + dX
-                        currentClockY = event.rawY + dY
+                        val rawTargetX = event.rawX + dX
+                        val rawTargetY = event.rawY + dY
+                        if (isSnapToGrid) {
+                            currentClockX = (Math.round(rawTargetX / gridSize) * gridSize)
+                            currentClockY = (Math.round(rawTargetY / gridSize) * gridSize)
+                        } else {
+                            currentClockX = rawTargetX
+                            currentClockY = rawTargetY
+                        }
                         view.translationX = currentClockX
                         view.translationY = currentClockY
                     }
                     true
                 }
                 MotionEvent.ACTION_UP -> {
-                    currentClockX = view.translationX
-                    currentClockY = view.translationY
+                    if (isSnapToGrid) {
+                        currentClockX = (Math.round(view.translationX / gridSize) * gridSize)
+                        currentClockY = (Math.round(view.translationY / gridSize) * gridSize)
+                        view.translationX = currentClockX
+                        view.translationY = currentClockY
+                    } else {
+                        currentClockX = view.translationX
+                        currentClockY = view.translationY
+                    }
                     true
                 }
                 else -> true
+            }
+        }
+
+        binding.btnClockSnap.setOnClickListener {
+            isSnapToGrid = !isSnapToGrid
+            prefs.widgetSnapGrid = isSnapToGrid
+            updateClockSnapButton()
+            if (isSnapToGrid) {
+                currentClockX = (Math.round(currentClockX / gridSize) * gridSize)
+                currentClockY = (Math.round(currentClockY / gridSize) * gridSize)
+                binding.dateTimeLayout.translationX = currentClockX
+                binding.dateTimeLayout.translationY = currentClockY
             }
         }
 
@@ -378,6 +425,10 @@ class HomeFragment : Fragment(), View.OnClickListener, View.OnLongClickListener 
         }
     }
 
+    private fun updateClockSnapButton() {
+        binding.btnClockSnap.text = if (isSnapToGrid) getString(R.string.snap_on) else getString(R.string.snap_off)
+    }
+
     private fun updateClockEditDisplay() {
         val pct = (currentClockScale * 100).toInt()
         binding.tvClockScaleDisplay.text = "$pct%"
@@ -393,6 +444,7 @@ class HomeFragment : Fragment(), View.OnClickListener, View.OnLongClickListener 
             prefs.clockOffsetX = currentClockX
             prefs.clockOffsetY = currentClockY
             prefs.clockScale = currentClockScale
+            prefs.widgetSnapGrid = isSnapToGrid
             requireContext().showToast(R.string.clock_layout_saved)
         }
         applyClockTransform()
@@ -404,6 +456,9 @@ class HomeFragment : Fragment(), View.OnClickListener, View.OnLongClickListener 
 
         viewModel.getTodaysScreenTime()
         binding.tvScreenTime.visibility = View.VISIBLE
+        FontManager.load(requireContext())?.let { tf ->
+            binding.tvScreenTime.typeface = tf
+        }
 
         val isLandscape = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
         val horizontalMargin = if (isLandscape) 64.dpToPx() else 10.dpToPx()
@@ -471,13 +526,22 @@ class HomeFragment : Fragment(), View.OnClickListener, View.OnLongClickListener 
     }
 
     private fun setHomeAppText(textView: TextView, appName: String, packageName: String, userString: String): Boolean {
+        val customTf = FontManager.load(requireContext())
         if (isPackageInstalled(requireContext(), packageName, userString)) {
             textView.text = appName
-            textView.setTypeface(textView.typeface, Typeface.BOLD)
+            if (customTf != null) {
+                textView.typeface = customTf
+            } else {
+                textView.setTypeface(textView.typeface, Typeface.BOLD)
+            }
             return true
         }
         textView.text = ""
-        textView.setTypeface(textView.typeface, Typeface.NORMAL)
+        if (customTf != null) {
+            textView.typeface = customTf
+        } else {
+            textView.setTypeface(textView.typeface, Typeface.NORMAL)
+        }
         return false
     }
 

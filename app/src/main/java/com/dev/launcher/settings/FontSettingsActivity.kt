@@ -1,9 +1,9 @@
 package com.dev.launcher.settings
 
+import android.app.Activity
 import android.graphics.Typeface
 import android.net.Uri
 import android.os.Bundle
-import android.provider.OpenableColumns
 import android.view.MenuItem
 import android.view.View
 import android.widget.Button
@@ -13,10 +13,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import com.dev.launcher.FontManager
 import com.dev.launcher.R
-import com.dev.launcher.data.Constants
 import com.dev.launcher.data.Prefs
-import java.io.File
-import java.io.FileOutputStream
 
 class FontSettingsActivity : AppCompatActivity() {
     private lateinit var btnPick: Button
@@ -40,7 +37,7 @@ class FontSettingsActivity : AppCompatActivity() {
         tvPreview = findViewById(R.id.tv_font_preview)
 
         btnPick.setOnClickListener {
-            pickFont.launch(arrayOf("*/*", "font/*", "application/x-font-ttf", "application/x-font-otf", "application/font-sfnt"))
+            pickFont.launch(arrayOf("*/*"))
         }
 
         btnReset.setOnClickListener {
@@ -48,6 +45,7 @@ class FontSettingsActivity : AppCompatActivity() {
         }
 
         updateUi()
+        FontManager.applyToView(findViewById(android.R.id.content), this)
     }
 
     private fun updateUi() {
@@ -57,12 +55,8 @@ class FontSettingsActivity : AppCompatActivity() {
             val fontName = prefs.customFontName?.ifEmpty { "custom_font.ttf" } ?: "custom_font.ttf"
             tvStatus.text = "Current: $fontName"
             btnReset.visibility = View.VISIBLE
-            try {
-                val tf = Typeface.createFromFile(File(prefs.customFontPath!!))
-                tvPreview.typeface = tf
-            } catch (e: Exception) {
-                tvPreview.typeface = Typeface.DEFAULT
-            }
+            val tf = FontManager.load(this)
+            tvPreview.typeface = tf ?: Typeface.DEFAULT
         } else {
             tvStatus.text = getString(R.string.import_font_tip)
             btnReset.visibility = View.GONE
@@ -71,54 +65,20 @@ class FontSettingsActivity : AppCompatActivity() {
     }
 
     private fun resetFont() {
-        val prefs = Prefs(this)
-        prefs.customFontPath = ""
-        prefs.customFontName = ""
-        prefs.fontSelection = Constants.Font.DEFAULT
-        FontManager.clear()
+        FontManager.resetCustomFont(this)
         updateUi()
+        setResult(Activity.RESULT_OK)
         Toast.makeText(this, R.string.font_removed, Toast.LENGTH_SHORT).show()
     }
 
     private fun applyFontFromUri(uri: Uri) {
-        try {
-            var fileName = "custom_font.ttf"
-            try {
-                contentResolver.query(uri, null, null, null, null)?.use { cursor ->
-                    val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
-                    if (nameIndex != -1 && cursor.moveToFirst()) {
-                        fileName = cursor.getString(nameIndex) ?: "custom_font.ttf"
-                    }
-                }
-            } catch (ignored: Exception) {}
-
-            val input = contentResolver.openInputStream(uri) ?: run {
-                Toast.makeText(this, R.string.invalid_font_file, Toast.LENGTH_SHORT).show()
-                return
-            }
-
-            val fontsDir = File(filesDir, "fonts").apply { if (!exists()) mkdirs() }
-            val outFile = File(fontsDir, "custom_font.ttf")
-            FileOutputStream(outFile).use { out -> input.copyTo(out) }
-
-            // Validate that Android can parse this font
-            try {
-                val testTf = Typeface.createFromFile(outFile)
-                if (testTf == null) throw Exception("Could not create typeface")
-            } catch (e: Exception) {
-                outFile.delete()
-                Toast.makeText(this, R.string.invalid_font_file, Toast.LENGTH_SHORT).show()
-                return
-            }
-
-            val prefs = Prefs(this)
-            prefs.customFontPath = outFile.absolutePath
-            prefs.customFontName = fileName
-            prefs.fontSelection = Constants.Font.CUSTOM
-            FontManager.clear()
+        val success = FontManager.saveCustomFont(this, uri)
+        if (success) {
             updateUi()
+            setResult(Activity.RESULT_OK)
             Toast.makeText(this, R.string.font_applied, Toast.LENGTH_SHORT).show()
-        } catch (e: Exception) {
+            FontManager.applyToView(findViewById(android.R.id.content), this)
+        } else {
             Toast.makeText(this, R.string.invalid_font_file, Toast.LENGTH_SHORT).show()
         }
     }

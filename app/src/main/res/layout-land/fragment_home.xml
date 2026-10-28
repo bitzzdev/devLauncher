@@ -18,8 +18,10 @@
         android:id="@+id/dateTimeLayout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
+        android:layout_gravity="center_horizontal|top"
         android:layout_marginTop="48dp"
+        android:padding="8dp"
+        android:clipToPadding="false"
         android:gravity="center_horizontal"
         android:orientation="vertical"
         android:visibility="gone"
@@ -205,6 +207,15 @@
                 android:paddingHorizontal="16dp"
                 android:paddingVertical="8dp"
                 android:text="＋" />
+
+            <TextView
+                android:id="@+id/btnClockSnap"
+                style="@style/TextSmallBold"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="8dp"
+                android:text="@string/snap_off" />
 
             <Space
                 android:layout_width="0dp"

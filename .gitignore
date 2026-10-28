@@ -18,3 +18,4 @@
 google-services.json
 /app/debug
 .vscode
+.kotlin

@@ -122,6 +122,8 @@ class SettingsFragment : Fragment(), View.OnClickListener, View.OnLongClickListe
             binding.mediaWidgetEnabledText?.text = if (newVal) getString(R.string.on) else getString(R.string.off)
         }
 
+        FontManager.applyToView(view, requireContext())
+
         binding.enableListenerRow?.setOnClickListener {
             startActivity(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS))
         }
@@ -169,7 +171,7 @@ class SettingsFragment : Fragment(), View.OnClickListener, View.OnLongClickListe
                 if (FontManager.hasCustomFontFile(requireContext())) {
                     updateFont(Constants.Font.CUSTOM)
                 } else {
-                    pickFontLauncher.launch(arrayOf("*/*", "font/*", "application/x-font-ttf", "application/x-font-otf", "application/font-sfnt"))
+                    pickFontLauncher.launch(arrayOf("*/*"))
                 }
             }
             R.id.textSizeValue -> binding.textSizesLayout.visibility = View.VISIBLE
@@ -279,7 +281,7 @@ class SettingsFragment : Fragment(), View.OnClickListener, View.OnLongClickListe
         binding.fontCrimsonPro?.setOnClickListener(this)
         binding.fontCustom?.setOnClickListener(this)
         binding.importCustomFontRow?.setOnClickListener {
-            pickFontLauncher.launch(arrayOf("*/*", "font/*", "application/x-font-ttf", "application/x-font-otf", "application/font-sfnt"))
+            pickFontLauncher.launch(arrayOf("*/*"))
         }
         binding.importCustomFontRow?.setOnLongClickListener {
             startActivity(Intent(requireContext(), FontSettingsActivity::class.java))
@@ -652,43 +654,12 @@ class SettingsFragment : Fragment(), View.OnClickListener, View.OnLongClickListe
     }
 
     private fun applyCustomFont(uri: Uri) {
-        try {
-            var fileName = "custom_font.ttf"
-            try {
-                requireContext().contentResolver.query(uri, null, null, null, null)?.use { cursor ->
-                    val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
-                    if (nameIndex != -1 && cursor.moveToFirst()) {
-                        fileName = cursor.getString(nameIndex) ?: "custom_font.ttf"
-                    }
-                }
-            } catch (ignored: Exception) {}
-
-            val input = requireContext().contentResolver.openInputStream(uri) ?: run {
-                requireContext().showToast(R.string.invalid_font_file)
-                return
-            }
-
-            val fontsDir = File(requireContext().filesDir, "fonts").apply { if (!exists()) mkdirs() }
-            val outFile = File(fontsDir, "custom_font.ttf")
-            FileOutputStream(outFile).use { out -> input.copyTo(out) }
-
-            try {
-                val testTf = Typeface.createFromFile(outFile)
-                if (testTf == null) throw Exception("Could not create typeface")
-            } catch (e: Exception) {
-                outFile.delete()
-                requireContext().showToast(R.string.invalid_font_file)
-                return
-            }
-
-            prefs.customFontPath = outFile.absolutePath
-            prefs.customFontName = fileName
-            prefs.fontSelection = Constants.Font.CUSTOM
-            FontManager.clear()
+        val success = FontManager.saveCustomFont(requireContext(), uri)
+        if (success) {
             populateFontText()
             requireContext().showToast(R.string.font_applied)
             requireActivity().recreate()
-        } catch (e: Exception) {
+        } else {
             requireContext().showToast(R.string.invalid_font_file)
         }
     }
@@ -704,7 +675,7 @@ class SettingsFragment : Fragment(), View.OnClickListener, View.OnLongClickListe
 
     private fun updateFont(fontId: Int) {
         if (fontId == Constants.Font.CUSTOM && !FontManager.hasCustomFontFile(requireContext())) {
-            pickFontLauncher.launch(arrayOf("*/*", "font/*", "application/x-font-ttf", "application/x-font-otf", "application/font-sfnt"))
+            pickFontLauncher.launch(arrayOf("*/*"))
             binding.fontSelectLayout?.visibility = View.GONE
             return
         }
@@ -713,6 +684,7 @@ class SettingsFragment : Fragment(), View.OnClickListener, View.OnLongClickListe
             return
         }
         prefs.fontSelection = fontId
+        FontManager.clear()
         populateFontText()
         binding.fontSelectLayout?.visibility = View.GONE
         requireActivity().recreate()

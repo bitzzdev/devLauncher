@@ -184,4 +184,8 @@
     <string name="clock_layout_reset">Clock position and size reset</string>
     <string name="clock_options">Clock Options</string>
     <string name="change_clock_app">Change Clock App</string>
+    <string name="snap_on">Snap: On</string>
+    <string name="snap_off">Freeform</string>
+    <string name="snap_to_grid">Snap to grid</string>
+    <string name="freeform">Freeform</string>
 </resources>
